@@ -4,25 +4,27 @@
 #include <raymath.h>
 
 #include <deque>
-#include <vector>
 #include <ranges>
+#include <vector>
 
 class Snake {
 public:
-    Snake(int cell_size, int board_width, int board_height)
-        : cell_size_(cell_size), board_width_(board_width),
-          board_height_(board_height), direction_(Vector2{.x = 1, .y = 0}),
-          should_add_segment_(false), direction_blocked_(true) {
+    Snake(Color color, int cell_size, int board_width, int board_height,
+          int offset)
+        : color_(std::move(color)), cell_size_(cell_size),
+          board_width_(board_width), board_height_(board_height),
+          direction_(Vector2{.x = 1, .y = 0}), should_add_segment_(false),
+          direction_blocked_(true), offset_(offset) {
         init_snake();
     }
 
     void draw() {
         for (const auto cell : body_) {
-            Rectangle rectangle{.x = cell.x * cell_size_,
-                                .y = cell.y * cell_size_,
+            Rectangle rectangle{.x = cell.x * cell_size_ + offset_,
+                                .y = cell.y * cell_size_ + offset_,
                                 .width = static_cast<float>(cell_size_),
                                 .height = static_cast<float>(cell_size_)};
-            DrawRectangleRounded(rectangle, 0.7, 3, GREEN);
+            DrawRectangleRounded(rectangle, 0.7, 3, color_);
         }
     }
 
@@ -89,7 +91,7 @@ public:
     void reset() {
         body_.clear();
         direction_ = Vector2{.x = 1, .y = 0};
-        should_add_segment_ =  false;
+        should_add_segment_ = false;
         direction_blocked_ = true;
         init_snake();
     }
@@ -113,9 +115,11 @@ private:
 
     bool is_collision_with_self() const {
         // check if head has same position are other body segments
-        return std::ranges::find(body_ | std::views::drop(1), body_.front()) != std::ranges::end(body_);
+        return std::ranges::find(body_ | std::views::drop(1), body_.front()) !=
+               std::ranges::end(body_);
     }
 
+    const Color color_;
     const int cell_size_;
     const int board_width_;
     const int board_height_;
@@ -123,4 +127,5 @@ private:
     Vector2 direction_;
     bool should_add_segment_;
     bool direction_blocked_;
+    const int offset_;
 };

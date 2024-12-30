@@ -8,19 +8,21 @@
 
 class Fruit {
 public:
-    explicit Fruit(int cell_size, int board_width, int board_height,
+    explicit Fruit(Color color, int cell_size, int board_width,
+                   int board_height, int offset,
                    const std::vector<Vector2>& occupied_positions)
-        : cell_size_(cell_size), board_width_(board_width),
-          board_height_(board_height) {
+        : color_(std::move(color)), cell_size_(cell_size),
+          board_width_(board_width), board_height_(board_height),
+          offset_(offset) {
         next(occupied_positions);
     }
 
     void draw() {
-        Rectangle rectangle{.x = position_.x * cell_size_,
-                            .y = position_.y * cell_size_,
+        Rectangle rectangle{.x = position_.x * cell_size_ + offset_,
+                            .y = position_.y * cell_size_ + offset_,
                             .width = static_cast<float>(cell_size_),
                             .height = static_cast<float>(cell_size_)};
-        DrawRectangleRounded(rectangle, 0.3, 1, RED);
+        DrawRectangleRounded(rectangle, 1.0, 3, color_);
     }
 
     Vector2 get_pos() const {
@@ -42,8 +44,10 @@ private:
             .y = static_cast<float>(GetRandomValue(0, board_height_ - 1))};
     }
 
+    const Color color_;
     const int cell_size_;
     const int board_width_;
     const int board_height_;
     Vector2 position_;
+    const int offset_;
 };
